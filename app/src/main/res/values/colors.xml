@@ -7,4 +7,9 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="blueKaizen">#0094FF</color>
+    <color name="yellowKaizen">#ffab30</color>
+    <color name="redKaizen">#e7410f</color>
+    <color name="greyKaizen">#343434</color>
+
 </resources>
