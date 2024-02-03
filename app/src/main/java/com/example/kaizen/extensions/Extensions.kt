@@ -14,3 +14,11 @@ fun Long.convertTimeToString(): String?  {
         )
     )
 }
+
+fun <T>MutableCollection<T>.addOrRemove(item : T){
+    if (contains(item)){
+        remove(item)
+    }else{
+        add(item)
+    }
+}

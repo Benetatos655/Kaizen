@@ -1,5 +1,6 @@
 package com.example.kaizen
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,8 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainScreenViewModel by viewModels()
+    val sharedPref = baseContext?.getSharedPreferences(
+        getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
     private val postAction: (UserActions) -> Unit = {
         lifecycleScope.launch {
@@ -43,5 +46,6 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.fetchData()
+
     }
 }

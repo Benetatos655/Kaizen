@@ -2,6 +2,7 @@ package com.example.kaizen.dataFactories
 
 import androidx.compose.runtime.mutableStateOf
 import com.example.kaizen.R
+import com.example.kaizen.repo.LocalStorage
 import com.example.kaizen.repo.dataclasses.MainScreenDataClass
 import com.example.kaizen.repo.dataclasses.MainScreenUiModel
 import com.example.kaizen.repo.dataclasses.MatchDetails
@@ -11,17 +12,23 @@ import javax.inject.Inject
 
 class MainScreenDataFactory @Inject constructor() {
 
+    private val savedSports = LocalStorage.favoriteSports.getFavoriteSport()
+
     fun transformData(body: List<ResponseGetSports>?): List<MainScreenDataClass>? {
         // if i also had to create the pre live view or one other view similar to the live i would have use interface with the vals and the data class
         // would have extend interface but only for one i think it's extra unnecessary implementation
-        return body?.map { sport ->
+        var response = body?.map { sport ->
             MainScreenDataClass(
                 sportsIcon = fetchSportIcon(sport.i ?: ""),
                 sportsText = sport.d ?: "",
                 sportsId = sport.i,
-                matchDetails = mutableStateOf(transformDataToMatchDetails(sport.e))
+                matchDetails = mutableStateOf(transformDataToMatchDetails(sport.e)),
+                isFavorite = mutableStateOf(fetchFavoriteFromBase(sport.i ?: ""))
             )
         }
+
+        response = response?.sortedByDescending { it.isFavorite.value }
+        return response
     }
 
     fun addToFavoriteTheGame(uiModel: MainScreenUiModel, id: Pair<String, String>) {
@@ -33,7 +40,9 @@ class MainScreenDataFactory @Inject constructor() {
         }?.apply {
             isGameFavorite.value = !isGameFavorite.value
         }
-        sport?.matchDetails?.value = sport?.matchDetails?.value?.sortedByDescending { it.isGameFavorite.value } ?: return
+        sport?.matchDetails?.value =
+            sport?.matchDetails?.value?.sortedByDescending { it.isGameFavorite.value } ?: return
+
     }
 
     fun addToFavoriteTheSport(uiModel: MainScreenUiModel, id: String) {
@@ -41,8 +50,9 @@ class MainScreenDataFactory @Inject constructor() {
         uiModel.model.value.firstOrNull { it.sportsId == id }?.apply {
             isFavorite.value = !isFavorite.value
         }
-
         uiModel.model.value = uiModel.model.value.sortedByDescending { it.isFavorite.value }
+        //i will use local storage only for the sports , if I add it for games the complexity will go through the roof
+        LocalStorage.favoriteSports.setRemoveFavoriteSport(id)
     }
 
     fun expandCollapseSport(uiModel: MainScreenUiModel, id: String) {
@@ -51,6 +61,10 @@ class MainScreenDataFactory @Inject constructor() {
             isExpanded.value = !isExpanded.value
         }
     }
+
+    private fun fetchFavoriteFromBase(sportsId: String): Boolean =
+        savedSports?.contains(sportsId) ?: false
+
 
     private fun transformDataToMatchDetails(data: List<ResponseSportInfo?>): List<MatchDetails> {
         return data.map {
