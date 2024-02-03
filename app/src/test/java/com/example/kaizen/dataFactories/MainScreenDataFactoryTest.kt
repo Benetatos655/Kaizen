@@ -33,7 +33,7 @@ class MainScreenDataFactoryTest : TestCase() {
         val dataFromCall = testData.dummyData
         val uiModel =
             MainScreenUiModel(mutableStateOf(dataFactory.transformData(dataFromCall.asList())!!))
-        val favorites = dataFactory.getSavedSports().toMutableList()
+        val favorites = mutableListOf<String>()
         favorites.clear() // it's already clear but why not
         favorites.addOrRemove(fetchRandomIds())
         favorites.addOrRemove(fetchRandomIds())

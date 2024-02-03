@@ -7,7 +7,7 @@ import com.google.gson.Gson
 object LocalStorage {
     const val FAVORITESPORTID = "FAVORITESPORTID"
 
-    internal var favoriteSports :FavoriteSports? = null
+    internal lateinit var favoriteSports :FavoriteSports
     fun init(sharedPrefs: SharedPreferences) {
         favoriteSports = FavoriteSports(sharedPrefs)
     }
