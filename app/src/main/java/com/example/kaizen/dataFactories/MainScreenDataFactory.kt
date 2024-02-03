@@ -1,5 +1,6 @@
 package com.example.kaizen.dataFactories
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.mutableStateOf
 import com.example.kaizen.R
 import com.example.kaizen.repo.LocalStorage
@@ -12,7 +13,9 @@ import javax.inject.Inject
 
 class MainScreenDataFactory @Inject constructor() {
 
-    private val savedSports = LocalStorage.favoriteSports.getFavoriteSport()
+
+
+   private val savedSports = LocalStorage.favoriteSports?.getFavoriteSport() ?: listOf()
 
     fun transformData(body: List<ResponseGetSports>?): List<MainScreenDataClass>? {
         // if i also had to create the pre live view or one other view similar to the live i would have use interface with the vals and the data class
@@ -52,7 +55,7 @@ class MainScreenDataFactory @Inject constructor() {
         }
         uiModel.model.value = uiModel.model.value.sortedByDescending { it.isFavorite.value }
         //i will use local storage only for the sports , if I add it for games the complexity will go through the roof
-        LocalStorage.favoriteSports.setRemoveFavoriteSport(id)
+        LocalStorage.favoriteSports?.setRemoveFavoriteSport(id)
     }
 
     fun expandCollapseSport(uiModel: MainScreenUiModel, id: String) {
@@ -90,4 +93,12 @@ class MainScreenDataFactory @Inject constructor() {
             "FUTS" -> R.drawable.ic_futsal
             else -> R.drawable.ic_wrong_icon
         }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) //for testing reason only
+    fun getSavedSports() = savedSports
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) //for testing reason only
+    fun setSavedSports(favorites : List<String>) = run {
+        savedSports.toMutableList().addAll(favorites)
+    }
 }
