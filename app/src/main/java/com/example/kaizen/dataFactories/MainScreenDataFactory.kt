@@ -1,7 +1,9 @@
 package com.example.kaizen.dataFactories
 
+import androidx.compose.runtime.mutableStateOf
 import com.example.kaizen.R
 import com.example.kaizen.repo.dataclasses.MainScreenDataClass
+import com.example.kaizen.repo.dataclasses.MainScreenUiModel
 import com.example.kaizen.repo.dataclasses.MatchDetails
 import com.example.kaizen.repo.dataclasses.ResponseGetSports
 import com.example.kaizen.repo.dataclasses.ResponseSportInfo
@@ -9,25 +11,52 @@ import javax.inject.Inject
 
 class MainScreenDataFactory @Inject constructor() {
 
-    fun transformData(body: List<ResponseGetSports>?) : List<MainScreenDataClass>? {
+    fun transformData(body: List<ResponseGetSports>?): List<MainScreenDataClass>? {
         // if i also had to create the pre live view or one other view similar to the live i would have use interface with the vals and the data class
         // would have extend interface but only for one i think it's extra unnecessary implementation
         return body?.map { sport ->
             MainScreenDataClass(
                 sportsIcon = fetchSportIcon(sport.i ?: ""),
                 sportsText = sport.d ?: "",
-                isFavorite = false,
-                matchDetails = transformDataToMatchDetails(sport.e)
+                sportsId = sport.i,
+                matchDetails = mutableStateOf(transformDataToMatchDetails(sport.e))
             )
+        }
+    }
+
+    fun addToFavoriteTheGame(uiModel: MainScreenUiModel, id: Pair<String, String>) {
+        val (sportId, gameId) = id
+
+        val sport = uiModel.model.value.firstOrNull { it.sportsId == sportId }
+        sport?.matchDetails?.value?.firstOrNull {
+            it.id == gameId
+        }?.apply {
+            isGameFavorite.value = !isGameFavorite.value
+        }
+        sport?.matchDetails?.value = sport?.matchDetails?.value?.sortedByDescending { it.isGameFavorite.value } ?: return
+    }
+
+    fun addToFavoriteTheSport(uiModel: MainScreenUiModel, id: String) {
+
+        uiModel.model.value.firstOrNull { it.sportsId == id }?.apply {
+            isFavorite.value = !isFavorite.value
+        }
+
+        uiModel.model.value = uiModel.model.value.sortedByDescending { it.isFavorite.value }
+    }
+
+    fun expandCollapseSport(uiModel: MainScreenUiModel, id: String) {
+
+        uiModel.model.value.firstOrNull { it.sportsId == id }?.apply {
+            isExpanded.value = !isExpanded.value
         }
     }
 
     private fun transformDataToMatchDetails(data: List<ResponseSportInfo?>): List<MatchDetails> {
         return data.map {
             MatchDetails(
-                timeRemaining = it?.tt ?: 0,
+                timeRemaining = mutableStateOf(it?.tt ?: 0),
                 competitors = it?.returnHomeCompetitor(),
-                isGameFavorite = false,
                 id = it?.i
             )
         }

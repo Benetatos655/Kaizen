@@ -10,7 +10,7 @@ data class ResponseSportInfo(
     @JvmField val i: String?,
     @JvmField val si: String?,
     @JvmField val d: String?,
-    @JvmField val tt: Int?
+    @JvmField val tt: Long?
 ) {
     fun returnHomeCompetitor(): Pair<String, String> {
         val temp = d?.split("-")
