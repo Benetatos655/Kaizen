@@ -51,7 +51,7 @@ class MainScreenDataFactory @Inject constructor() {
         }
         uiModel.model.value = uiModel.model.value.sortedByDescending { it.isFavorite.value }
         //i will use local storage only for the sports , if I add it for games the complexity will go through the roof
-        LocalStorage.favoriteSports.setRemoveFavoriteSport(id)
+        LocalStorage.favoriteSports?.setRemoveFavoriteSport(id)
     }
 
     fun expandCollapseSport(uiModel: MainScreenUiModel, id: String) {
@@ -62,7 +62,7 @@ class MainScreenDataFactory @Inject constructor() {
     }
 
     private fun fetchFavoriteFromBase(sportsId: String): Boolean =
-        LocalStorage.favoriteSports.getFavoriteSport()?.contains(sportsId) ?: false
+        LocalStorage.favoriteSports?.getFavoriteSport()?.contains(sportsId) ?: false
 
     private suspend fun transformDataToMatchDetails(data: List<ResponseSportInfo?>) =
         withContext(Dispatchers.IO) {

@@ -89,6 +89,11 @@ dependencies {
 
     // Constrains
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    //mockk
+    androidTestImplementation ("io.mockk:mockk-android:1.13.9")
+    testImplementation ("io.mockk:mockk:1.13.9")
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
+    androidTestImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
 }
 // Allow references to generated code
 kapt {

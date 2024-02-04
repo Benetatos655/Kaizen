@@ -1,38 +1,65 @@
 package com.example.kaizen.dataFactories
 
+import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateOf
 import com.example.kaizen.TestData
 import com.example.kaizen.extensions.addOrRemove
+import com.example.kaizen.repo.LocalStorage
 import com.example.kaizen.repo.dataclasses.MainScreenUiModel
+import io.mockk.mockk
 import junit.framework.TestCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 
 class MainScreenDataFactoryTest : TestCase() {
 
+
     private val testData by lazy { TestData() }
+    private val testDispatcher = TestCoroutineDispatcher()
+    private val mockSharedPreferences get() = mockk<SharedPreferences>(relaxed = true)
+
+    @Before
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+        LocalStorage.init(mockSharedPreferences)
+    }
+
+    @After
+    fun cleanUp() {
+        Dispatchers.resetMain()
+    }
 
     @Test
     fun testTransformation() {
         val dataFactory = MainScreenDataFactory()
         val dataFromCall = testData.dummyData
-        val dataAfterTransform = dataFactory.transformData(dataFromCall.asList())
-        assertEquals(dataFromCall.size, dataAfterTransform?.size)
+        val uiModel = runBlocking {
+            MainScreenUiModel(mutableStateOf(dataFactory.transformData(dataFromCall.asList())!!))
+        }
+        assertEquals(dataFromCall.size, uiModel.model.value.size)
 
         dataFromCall.forEachIndexed { index, responseGetSports ->
             assertEquals(
-                responseGetSports.e.size,
-                dataAfterTransform!![index].matchDetails.value.size
+                responseGetSports.activeEvents.size,
+                uiModel.model.value[index].matchDetails.value.size
             )
-            assertEquals(responseGetSports.d, dataAfterTransform[index].sportsText)
-            assertEquals(responseGetSports.i, dataAfterTransform[index].sportsId)
+            assertEquals(responseGetSports.sportName, uiModel.model.value[index].sportsText)
+            assertEquals(responseGetSports.sportId, uiModel.model.value[index].sportsId)
         }
     }
 
     fun testFilteringAfterFavorite() {
         val dataFactory = MainScreenDataFactory()
         val dataFromCall = testData.dummyData
-        val uiModel =
+        val uiModel = runBlocking {
             MainScreenUiModel(mutableStateOf(dataFactory.transformData(dataFromCall.asList())!!))
+        }
         val favorites = mutableListOf<String>()
         favorites.clear() // it's already clear but why not
         favorites.addOrRemove(fetchRandomIds())
@@ -41,8 +68,12 @@ class MainScreenDataFactoryTest : TestCase() {
         favorites.forEach {
             dataFactory.addToFavoriteTheSport(uiModel, it)
         }
+        val uiFavoriteList = uiModel.model.value.filter { it.isFavorite.value }
+        assertEquals(favorites.size, uiFavoriteList.size)
 
-        assertEquals(favorites.size, uiModel.model.value.filter { it.isFavorite.value }.size)
+        favorites.forEach {forEachValue->
+            assertTrue(uiFavoriteList.firstOrNull { it.sportsId?.equals(forEachValue) == true } != null)
+        }
     }
 
     private fun fetchRandomIds(): String {

@@ -5,9 +5,10 @@ import com.example.kaizen.extensions.addOrRemove
 import com.google.gson.Gson
 
 object LocalStorage {
+
     const val FAVORITESPORTID = "FAVORITESPORTID"
 
-    internal lateinit var favoriteSports :FavoriteSports
+    internal var favoriteSports :FavoriteSports? = null
     fun init(sharedPrefs: SharedPreferences) {
         favoriteSports = FavoriteSports(sharedPrefs)
     }
