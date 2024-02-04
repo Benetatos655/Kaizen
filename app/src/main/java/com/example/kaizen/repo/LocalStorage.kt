@@ -1,7 +1,6 @@
 package com.example.kaizen.repo
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.example.kaizen.extensions.addOrRemove
 import com.google.gson.Gson
 
@@ -20,7 +19,6 @@ object LocalStorage {
             listOfFavoriteSports?.addOrRemove(id)
             val json = Gson().toJson(listOfFavoriteSports)
             sharedPrefs.edit().putString(FAVORITESPORTID, json).apply()
-            Log.d("marios", listOfFavoriteSports.toString())
         }
 
         fun getFavoriteSport(): List<String>? {
