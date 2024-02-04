@@ -1,19 +1,21 @@
 package com.example.kaizen.repo.dataclasses
 
+import com.google.gson.annotations.SerializedName
+
 data class ResponseGetSports(
-    @JvmField val i: String?,
-    @JvmField val d: String?,
-    @JvmField val e: List<ResponseSportInfo?>
+    @JvmField @SerializedName("i") val sportId: String?,
+    @JvmField @SerializedName("d") val sportName: String?,
+    @JvmField @SerializedName("e") val activeEvents: List<ResponseSportInfo?>
 )
 
 data class ResponseSportInfo(
-    @JvmField val i: String?,
-    @JvmField val si: String?,
-    @JvmField val d: String?,
-    @JvmField val tt: Long?
+    @JvmField @SerializedName("i") val eventId: String?,
+    @JvmField @SerializedName("si") val sportId: String?,
+    @JvmField @SerializedName("d") val eventName: String?,
+    @JvmField @SerializedName("tt") val eventStartTime: Long?
 ) {
     fun returnHomeCompetitor(): Pair<String, String> {
-        val temp = d?.split("-")
+        val temp = eventName?.split("-")
         return Pair(temp?.get(0) ?: "", temp?.get(1) ?: "")
     }
 }

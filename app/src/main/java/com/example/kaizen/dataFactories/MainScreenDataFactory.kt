@@ -19,11 +19,11 @@ class MainScreenDataFactory @Inject constructor() {
         // would have extend interface but only for one i think it's extra unnecessary implementation
         var response = body?.map { sport ->
             MainScreenDataClass(
-                sportsIcon = fetchSportIcon(sport.i ?: ""),
-                sportsText = sport.d ?: "",
-                sportsId = sport.i,
-                matchDetails = mutableStateOf(transformDataToMatchDetails(sport.e)),
-                isFavorite = mutableStateOf(fetchFavoriteFromBase(sport.i ?: ""))
+                sportsIcon = fetchSportIcon(sport.sportId ?: ""),
+                sportsText = sport.sportName ?: "",
+                sportsId = sport.sportId,
+                matchDetails = mutableStateOf(transformDataToMatchDetails(sport.activeEvents)),
+                isFavorite = mutableStateOf(fetchFavoriteFromBase(sport.sportId ?: ""))
             )
         }
         response = response?.sortedByDescending { it.isFavorite.value }
@@ -68,9 +68,9 @@ class MainScreenDataFactory @Inject constructor() {
         withContext(Dispatchers.IO) {
             return@withContext data.map {
                 MatchDetails(
-                    timeRemaining = mutableStateOf(it?.tt ?: 0),
+                    timeRemaining = mutableStateOf(it?.eventStartTime ?: 0),
                     competitors = it?.returnHomeCompetitor(),
-                    id = it?.i
+                    id = it?.eventId
                 )
             }
         }
