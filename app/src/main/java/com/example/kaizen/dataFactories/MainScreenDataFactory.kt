@@ -8,15 +8,15 @@ import com.example.kaizen.repo.dataclasses.MainScreenUiModel
 import com.example.kaizen.repo.dataclasses.MatchDetails
 import com.example.kaizen.repo.dataclasses.ResponseGetSports
 import com.example.kaizen.repo.dataclasses.ResponseSportInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MainScreenDataFactory @Inject constructor() {
 
+    private val savedSports = LocalStorage.favoriteSports.getFavoriteSport()
 
-
-   private val savedSports = LocalStorage.favoriteSports.getFavoriteSport()
-
-    fun transformData(body: List<ResponseGetSports>?): List<MainScreenDataClass>? {
+    suspend fun transformData(body: List<ResponseGetSports>?) = withContext(Dispatchers.IO) {
         // if i also had to create the pre live view or one other view similar to the live i would have use interface with the vals and the data class
         // would have extend interface but only for one i think it's extra unnecessary implementation
         var response = body?.map { sport ->
@@ -28,9 +28,8 @@ class MainScreenDataFactory @Inject constructor() {
                 isFavorite = mutableStateOf(fetchFavoriteFromBase(sport.i ?: ""))
             )
         }
-
         response = response?.sortedByDescending { it.isFavorite.value }
-        return response
+        return@withContext response
     }
 
     fun addToFavoriteTheGame(uiModel: MainScreenUiModel, id: Pair<String, String>) {
@@ -68,15 +67,16 @@ class MainScreenDataFactory @Inject constructor() {
         savedSports?.contains(sportsId) ?: false
 
 
-    private fun transformDataToMatchDetails(data: List<ResponseSportInfo?>): List<MatchDetails> {
-        return data.map {
-            MatchDetails(
-                timeRemaining = mutableStateOf(it?.tt ?: 0),
-                competitors = it?.returnHomeCompetitor(),
-                id = it?.i
-            )
+    private suspend fun transformDataToMatchDetails(data: List<ResponseSportInfo?>) =
+        withContext(Dispatchers.IO) {
+            return@withContext data.map {
+                MatchDetails(
+                    timeRemaining = mutableStateOf(it?.tt ?: 0),
+                    competitors = it?.returnHomeCompetitor(),
+                    id = it?.i
+                )
+            }
         }
-    }
 
     private fun fetchSportIcon(sportsName: String): Int =
         when (sportsName) {
