@@ -14,8 +14,6 @@ import javax.inject.Inject
 
 class MainScreenDataFactory @Inject constructor() {
 
-    private val savedSports = LocalStorage.favoriteSports.getFavoriteSport()
-
     suspend fun transformData(body: List<ResponseGetSports>?) = withContext(Dispatchers.IO) {
         // if i also had to create the pre live view or one other view similar to the live i would have use interface with the vals and the data class
         // would have extend interface but only for one i think it's extra unnecessary implementation
@@ -64,8 +62,7 @@ class MainScreenDataFactory @Inject constructor() {
     }
 
     private fun fetchFavoriteFromBase(sportsId: String): Boolean =
-        savedSports?.contains(sportsId) ?: false
-
+        LocalStorage.favoriteSports.getFavoriteSport()?.contains(sportsId) ?: false
 
     private suspend fun transformDataToMatchDetails(data: List<ResponseSportInfo?>) =
         withContext(Dispatchers.IO) {
